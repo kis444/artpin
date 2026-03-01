@@ -2,6 +2,8 @@
 
 import { useLocale } from "@/lib/i18n/locale-context"
 import { Phone, Mail, MapPin } from "lucide-react"
+import { useRef, useState } from "react"
+import emailjs from '@emailjs/browser'
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -31,6 +33,37 @@ function TikTokIcon({ className }: { className?: string }) {
 
 export function ContactSection() {
   const { t } = useLocale()
+  const formRef = useRef<HTMLFormElement>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [status, setStatus] = useState<'success' | 'error' | null>(null)
+
+  // Datele tale din EmailJS
+  const SERVICE_ID = "service_1nn86za"
+  const TEMPLATE_ID = "template_8uybc6n"
+  const PUBLIC_KEY = "Znc9_Tj5oS30jmEgR"
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setStatus(null)
+
+    try {
+      await emailjs.sendForm(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        formRef.current!,
+        PUBLIC_KEY
+      )
+      
+      setStatus('success')
+      formRef.current?.reset()
+    } catch (error) {
+      console.error('Eroare la trimitere:', error)
+      setStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <section id="contact" className="bg-card py-28 lg:py-36">
@@ -79,10 +112,10 @@ export function ContactSection() {
                   {t.contact.email}
                 </p>
                 <a
-                  href="mailto:artpin1@mail.ru"
+                  href="mailto:md.artpin@gmail.com"
                   className="mt-1 text-base text-foreground transition-colors hover:text-primary"
                 >
-                  artpin1@mail.ru
+                  md.artpin@gmail.com
                 </a>
               </div>
             </div>
@@ -152,9 +185,22 @@ export function ContactSection() {
           {/* Contact Form */}
           <div className="border border-border/60 bg-background/50 p-8 lg:p-10">
             <form
+              ref={formRef}
               className="flex flex-col gap-6"
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={handleSubmit}
             >
+              {status === 'success' && (
+                <div className="bg-green-500/10 border border-green-500 text-green-500 px-4 py-3 text-sm">
+                  ✓ Mesajul a fost trimis cu succes! Vom reveni în curând.
+                </div>
+              )}
+              
+              {status === 'error' && (
+                <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 text-sm">
+                  ✗ A apărut o eroare. Te rugăm să încerci din nou.
+                </div>
+              )}
+
               <div>
                 <label
                   htmlFor="name"
@@ -164,9 +210,11 @@ export function ContactSection() {
                 </label>
                 <input
                   type="text"
+                  name="name"
                   id="name"
                   className="w-full border-b border-border bg-transparent py-3 text-base text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-accent"
                   required
+                  suppressHydrationWarning
                 />
               </div>
               <div>
@@ -178,9 +226,11 @@ export function ContactSection() {
                 </label>
                 <input
                   type="email"
+                  name="email"
                   id="email"
                   className="w-full border-b border-border bg-transparent py-3 text-base text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-accent"
                   required
+                  suppressHydrationWarning
                 />
               </div>
               <div>
@@ -192,16 +242,19 @@ export function ContactSection() {
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   rows={5}
                   className="w-full resize-none border-b border-border bg-transparent py-3 text-base text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-accent"
                   required
+                  suppressHydrationWarning
                 />
               </div>
               <button
                 type="submit"
-                className="mt-4 w-full rounded-none border border-primary bg-primary py-4 text-sm font-medium uppercase tracking-widest text-primary-foreground transition-all hover:bg-transparent hover:text-primary"
+                disabled={isSubmitting}
+                className="mt-4 w-full rounded-none border border-primary bg-primary py-4 text-sm font-medium uppercase tracking-widest text-primary-foreground transition-all hover:bg-transparent hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t.contact.formSend}
+                {isSubmitting ? 'Se trimite...' : t.contact.formSend}
               </button>
             </form>
           </div>
