@@ -31,7 +31,6 @@ export const portfolioItems: PortfolioItem[] = [
     media: [
       { type: 'image', src: "/images/portfolio/k1a.jpg" },
       { type: 'image', src: "/images/portfolio/k1b.jpg" },
-     { type: 'video', src: "/videos/portfolio/k1a.mp4", thumbnail: "/images/portfolio/k1a.jpg" },
       // { type: 'video', src: "/videos/portfolio/k1-tur.mp4", thumbnail: "/images/portfolio/k1a.jpg" },
     ],
     featured: true,
