@@ -6,109 +6,106 @@ export type PortfolioCategory =
   | "retail"
   | "furniture"
 
+export type MediaItem = {
+  type: 'image' | 'video'
+  src: string
+  thumbnail?: string  // pentru video, poți avea o imagine de previzualizare
+}
+
 export type PortfolioItem = {
   id: string
   title: string
   category: PortfolioCategory
-  image: string
+  coverImage: string
+  media: MediaItem[]  // înlocuim "images" cu "media"
   featured?: boolean
 }
 
-// Dynamic-ready: replace with API calls or CMS integration
 export const portfolioItems: PortfolioItem[] = [
-  // Kitchens - toate pozele tale de la k1.jpg la k9.jpg
+  // Kitchens
   {
-    id: "kitchen-1",
-    title: "Modern Walnut Kitchen",
+    id: "k1",
+    title: "Modern #1",
     category: "kitchens",
-    image: "/images/portfolio/k1.jpg",
+    coverImage: "/images/portfolio/k1a.jpg",
+    media: [
+      { type: 'image', src: "/images/portfolio/k1a.jpg" },
+      { type: 'image', src: "/images/portfolio/k1b.jpg" },
+     { type: 'video', src: "/videos/portfolio/k1a.mp4", thumbnail: "/images/portfolio/k1a.jpg" },
+      // { type: 'video', src: "/videos/portfolio/k1-tur.mp4", thumbnail: "/images/portfolio/k1a.jpg" },
+    ],
     featured: true,
   },
   {
-    id: "kitchen-2",
-    title: "Contemporary White Kitchen",
+    id: "k2",
+    title: "Island #2",
     category: "kitchens",
-    image: "/images/portfolio/k2.jpg",
+    coverImage: "/images/portfolio/k2a.jpg",
+    media: [
+      { type: 'image', src: "/images/portfolio/k2a.jpg" },
+      { type: 'image', src: "/images/portfolio/k2b.jpg" },
+      { type: 'image', src: "/images/portfolio/k2c.jpg" },
+      { type: 'image', src: "/images/portfolio/k2d.jpg" },
+    ],
   },
   {
-    id: "kitchen-3",
-    title: "Minimalist Kitchen Design",
+    id: "k3",
+    title: "Minimalist #3",
     category: "kitchens",
-    image: "/images/portfolio/k3.jpg",
-  },
-  {
-    id: "kitchen-4",
-    title: "Rustic Style Kitchen",
-    category: "kitchens",
-    image: "/images/portfolio/k4.jpg",
-  },
-  {
-    id: "kitchen-5",
-    title: "Modern Kitchen with Island",
-    category: "kitchens",
-    image: "/images/portfolio/k5.jpg",
-  },
-  {
-    id: "kitchen-6",
-    title: "Scandinavian Kitchen",
-    category: "kitchens",
-    image: "/images/portfolio/k6.jpg",
-  },
-  {
-    id: "kitchen-7",
-    title: "Luxury Kitchen Design",
-    category: "kitchens",
-    image: "/images/portfolio/k7.jpg",
-  },
-  {
-    id: "kitchen-8",
-    title: "Open Concept Kitchen",
-    category: "kitchens",
-    image: "/images/portfolio/k8.jpg",
-  },
-  {
-    id: "kitchen-9",
-    title: "Elegant Kitchen Interior",
-    category: "kitchens",
-    image: "/images/portfolio/k9.jpg",
+    coverImage: "/images/portfolio/k3a.jpg",
+    media: [
+      { type: 'image', src: "/images/portfolio/k3a.jpg" },
+      { type: 'image', src: "/images/portfolio/k3b.jpg" },
+      { type: 'image', src: "/images/portfolio/k3c.jpg" },
+    ],
   },
 
-  // Celelalte categorii existente
+  // Celelalte categorii
   {
-    id: "doors-1",
-    title: "Solid Wood Interior Door",
+    id: "d1",
+    title: "Solid Wood Door",
     category: "doors",
-    image: "/images/portfolio/doors-1.jpg",
+    coverImage: "/images/portfolio/d1a.jpg",
+    media: [
+      { type: 'image', src: "/images/portfolio/d1a.jpg" },
+    ],
   },
   {
-    id: "staircase-1",
-    title: "Custom Walnut Staircase",
+    id: "s1",
+    title: "Walnut Staircase",
     category: "staircases",
-    image: "/images/portfolio/staircase-1.jpg",
+    coverImage: "/images/portfolio/s1a.jpg",
+    media: [
+      { type: 'image', src: "/images/portfolio/s1a.jpg" },
+    ],
   },
   {
-    id: "office-1",
-    title: "Bucuria",
+    id: "o1",
+    title: "Bucuria Office",
     category: "offices",
-    image: "/images/portfolio/o1.jpg",
-  },
-   {
-    id: "office-2",
-    title: "Bucuria",
-    category: "offices",
-    image: "/images/portfolio/o2.jpg",
+    coverImage: "/images/portfolio/o1a.jpg",
+    media: [
+      { type: 'image', src: "/images/portfolio/o1a.jpg" },
+      { type: 'image', src: "/images/portfolio/o1b.jpg" },
+    ],
   },
   {
-    id: "retail-1",
+    id: "r1",
     title: "Luxury Retail — France",
     category: "retail",
-    image: "/images/portfolio/retail-1.jpg",
+    coverImage: "/images/portfolio/r1a.jpg",
+    media: [
+      { type: 'image', src: "/images/portfolio/r1a.jpg" },
+    ],
     featured: true,
   },
   {
-    id: "furniture-1",
-    title: "Bespoke Walnut Cabinet",
+    id: "f1",
+    title: "Walnut Cabinet",
     category: "furniture",
-    image: "/images/portfolio/furniture-1.jpg",
+    coverImage: "/images/portfolio/f1a.jpg",
+    media: [
+      { type: 'image', src: "/images/portfolio/f1a.jpg" },
+    ],
   },
 ]

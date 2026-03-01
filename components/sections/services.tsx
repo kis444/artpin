@@ -24,8 +24,28 @@ const icons: LucideIcon[] = [
   Store,
 ]
 
+// Mapare între index-ul serviciului și categoria din portofoliu
+const serviceToCategory: Record<number, string> = {
+  0: "kitchens",      // ChefHat -> Bucătării
+  1: "doors",         // DoorOpen -> Uși
+  2: "staircases",    // Shield -> Scări
+  3: "furniture",     // Layers -> Mobilier personalizat
+  4: "offices",       // Building2 -> Birouri
+  5: "retail",        // PanelTop -> Spații comerciale
+  6: "furniture",     // Armchair -> Mobilier
+  7: "retail",        // Store -> Retail
+}
+
 export function ServicesSection() {
   const { t } = useLocale()
+
+  const handleServiceClick = (index: number) => {
+    const category = serviceToCategory[index]
+    if (category) {
+      // Metoda simplă și sigură - navigare cu reîncărcare
+      window.location.href = `/?category=${category}#portfolio`
+    }
+  }
 
   return (
     <section id="services" className="bg-card py-28 lg:py-36">
@@ -47,7 +67,8 @@ export function ServicesSection() {
             return (
               <div
                 key={i}
-                className="group flex flex-col border border-border/60 bg-background/50 p-8 transition-all hover:border-accent/40 hover:bg-background/80"
+                onClick={() => handleServiceClick(i)}
+                className="group flex cursor-pointer flex-col border border-border/60 bg-background/50 p-8 transition-all hover:border-accent/40 hover:bg-background/80"
               >
                 <Icon className="mb-6 h-8 w-8 text-accent transition-transform group-hover:scale-110" />
                 <h3 className="font-serif text-lg font-medium text-foreground">
@@ -56,6 +77,9 @@ export function ServicesSection() {
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {service.description}
                 </p>
+                <span className="mt-4 text-xs uppercase tracking-widest text-accent opacity-0 transition-opacity group-hover:opacity-100">
+                  Vezi proiecte →
+                </span>
               </div>
             )
           })}

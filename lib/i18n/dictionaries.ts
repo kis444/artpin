@@ -67,6 +67,16 @@ export const dictionaries = {
         retail: "Retail",
         furniture: "Mobilier",
       },
+      descriptions: {
+  k1: "O capodoperă a designului contemporan, această bucătărie îmbină armonios liniile minimaliste cu texturi naturale. Fronturile mate în nuanță de grej sunt completate de blatul din quartz cu venaturi fine, iar insula centrală generoasă oferă atât spațiu de preparare cât și zonă de socializare. Sistemul de iluminat ambiental LED creează atmosfera perfectă pentru serile în familie.",
+  k2: "Bucătărie spațioasă, gândită pentru pasionații de gastronomie care iubesc să gătească în compania celor dragi. Insula multifuncțională integrează plită, chiuvetă și zonă de servit, transformând prepararea meselor într-un spectacol interactiv. Fronturile din lemn masiv de stejar afumat aduc căldură naturală, în timp ce electrocasnicele inox, discret integrate, asigură performanță profesională.",
+  k3: "Eleganța dusă la extrem prin simplitate. Fiecare detaliu al acestei bucătării a fost atent calibrat pentru a crea un spațiu aerisit, fără elemente vizuale care să distragă atenția. Fronturile complet plane, cu sistem de deschidere push-to-open, se confundă cu pereții, oferind o estetică pură, aproape sculpturală. Blatul din piatră naturală și insula suspendată adaugă note de rafinament discret.",
+  d1: "Ușă din lemn masiv de stejar, sculptată manual și finisată cu uleiuri naturale care pun în valoare textura autentică a lemnului. Fierăria forjată manual completează designul atemporal, transformând fiecare trecere pragul într-un moment de grație.",
+  s1: "Scară impunătoare din nuc american, cu linii curate și balustradă din sticlă securizată. Fiecare treaptă, sculptată dintr-o singură bucată de lemn, pare că plutește în aer datorită sistemului ingenios de prindere. O piesă centrală care definește întreaga arhitectură a casei.",
+  o1: "Un spațiu de lucru care inspiră creativitate și productivitate. Biroul generos din lemn de cireș, rafturile suspendate și mobilierul ergonomic sunt gândite să ofere confort pe durata întregii zile. Lumina naturală pătrunde generos prin geamurile generoase, iar plantele verzi aduc o notă de prospețime și vitalitate.",
+  r1: "Concept boutique pentru un brand francez de prestigiu. Spațiul îmbină elegant vitrinele generoase cu zonele de relaxare pentru clienți, create din materiale nobile precum marmura și alama periată. Iluminatul dramatic pune în valoare fiecare produs ca pe o operă de artă, oferind o experiență de shopping memorabilă.",
+  f1: "O piesă de mobilier unică, sculptată manual din nuc bătrân de peste 100 de ani. Acest cabinet impresionează prin proporțiile armonioase, detaliile sculptate inspirate din natură și finisajul manual cu ceară naturală. Spațiile generoase de depozitare sunt completate de sertare tapițate în interior cu catifea.",
+},
       caseStudy: {
         title: "Proiect internațional — Franța",
         description:
@@ -180,6 +190,16 @@ export const dictionaries = {
         retail: "Ритейл",
         furniture: "Мебель",
       },
+      descriptions: {
+  k1: "Шедевр современного дизайна, эта кухня гармонично сочетает минималистичные линии с натуральными текстурами. Матовые фасады в оттенке греж дополнены столешницей из кварца с тонкими прожилками, а просторный центральный остров предлагает как место для приготовления пищи, так и зону для общения. Светодиодное освещение создает идеальную атмосферу для семейных вечеров.",
+  k2: "Просторная кухня, созданная для любителей гастрономии, которые любят готовить в компании близких. Многофункциональный остров объединяет варочную панель, мойку и зону для сервировки, превращая приготовление пищи в интерактивное представление. Фасады из массива копченого дуба привносят природное тепло, а встроенная техника из нержавеющей стали обеспечивает профессиональную производительность.",
+  k3: "Элегантность, доведенная до крайности через простоту. Каждая деталь этой кухни тщательно продумана для создания воздушного пространства без отвлекающих визуальных элементов. Полностью плоские фасады с системой открывания push-to-open сливаются со стенами, создавая чистую, почти скульптурную эстетику. Столешница из натурального камня и подвесной остров добавляют нотки сдержанного изыска.",
+  d1: "Дверь из массива дуба, вырезанная вручную и отделанная натуральными маслами, которые подчеркивают аутентичную текстуру дерева. Кованая фурнитура ручной работы дополняет вневременной дизайн, превращая каждый переход порога в момент изящества.",
+  s1: "Впечатляющая лестница из американского ореха с чистыми линиями и ограждением из закаленного стекла. Каждая ступень, вырезанная из цельного куска дерева, кажется парящей в воздухе благодаря изобретательной системе крепления. Центральный элемент, определяющий всю архитектуру дома.",
+  o1: "Рабочее пространство, вдохновляющее на творчество и продуктивность. Просторный стол из вишневого дерева, подвесные полки и эргономичная мебель созданы для комфорта в течение всего дня. Естественный свет обильно проникает через большие окна, а зеленые растения придают нотку свежести и жизненной силы.",
+  r1: "Бутик-концепция для престижного французского бренда. Пространство элегантно сочетает витрины с зонами отдыха для клиентов, созданными из благородных материалов, таких как мрамор и латунь. Драматическое освещение представляет каждый продукт как произведение искусства, обеспечивая незабываемый шопинг-опыт.",
+  f1: "Уникальный предмет мебели, вырезанный вручную из старого ореха возрастом более 100 лет. Этот шкаф впечатляет гармоничными пропорциями, резными деталями, вдохновленными природой, и ручной отделкой натуральным воском. Просторные места для хранения дополнены выдвижными ящиками, обитыми внутри бархатом.",
+},
       caseStudy: {
         title: "Международный проект — Франция",
         description:
@@ -293,6 +313,16 @@ export const dictionaries = {
         retail: "Retail",
         furniture: "Furniture",
       },
+      descriptions: {
+  k1: "A masterpiece of contemporary design, this kitchen harmoniously blends minimalist lines with natural textures. The matte fronts in greige are complemented by a quartz countertop with fine veining, while the generous central island offers both food preparation space and a socializing area. The LED ambient lighting creates the perfect atmosphere for family evenings.",
+  k2: "Spacious kitchen, designed for gastronomy enthusiasts who love to cook in the company of loved ones. The multifunctional island integrates a cooktop, sink and serving area, turning meal preparation into an interactive spectacle. The solid smoked oak fronts bring natural warmth, while the discreetly integrated stainless steel appliances ensure professional performance.",
+  k3: "Elegance taken to the extreme through simplicity. Every detail of this kitchen has been carefully calibrated to create an airy space, without distracting visual elements. The completely flat fronts with push-to-open system blend with the walls, offering a pure, almost sculptural aesthetic. The natural stone countertop and suspended island add notes of discreet refinement.",
+  d1: "Solid oak door, hand-carved and finished with natural oils that highlight the authentic wood texture. Hand-forged ironwork completes the timeless design, turning every threshold crossing into a moment of grace.",
+  s1: "Impressive American walnut staircase with clean lines and tempered glass railing. Each step, carved from a single piece of wood, seems to float in the air due to the ingenious fastening system. A centerpiece that defines the entire architecture of the house.",
+  o1: "A workspace that inspires creativity and productivity. The generous cherry wood desk, floating shelves and ergonomic furniture are designed to provide comfort throughout the day. Natural light pours generously through the large windows, while green plants add a touch of freshness and vitality.",
+  r1: "Boutique concept for a prestigious French brand. The space elegantly combines generous display windows with client relaxation areas, created from noble materials such as marble and brushed brass. Dramatic lighting showcases each product as a work of art, offering a memorable shopping experience.",
+  f1: "A unique piece of furniture, hand-carved from over 100-year-old walnut. This cabinet impresses with its harmonious proportions, carved details inspired by nature, and hand-finish with natural wax. Generous storage spaces are complemented by drawers lined with velvet inside.",
+},
       caseStudy: {
         title: "International Project — France",
         description:
