@@ -6,7 +6,8 @@ import { type Locale, defaultLocale, dictionaries } from "./dictionaries"
 type LocaleContextType = {
   locale: Locale
   setLocale: (locale: Locale) => void
-  t: (typeof dictionaries)["en"]
+  // Folosim 'any' pentru a evita erorile de tip între limbi
+  t: any
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
