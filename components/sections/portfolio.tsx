@@ -2,20 +2,31 @@
 
 import { useState, useEffect } from "react"
 import { useLocale } from "@/lib/i18n/locale-context"
-import { portfolioItems, type PortfolioCategory, type PortfolioItem, type MediaItem } from "@/lib/data/portfolio"
 import Image from "next/image"
 import { ArrowUpRight, Images, X, ChevronLeft, ChevronRight, Play } from "lucide-react"
 
-const categories: PortfolioCategory[] = [
-  "kitchens",
-  "doors",
-  "staircases",
-  "offices",
-  "retail",
-  "furniture",
-]
+// Tipuri (le poți importa din lib/content-artpin)
+type MediaItem = {
+  type: 'image' | 'video'
+  src: string
+  thumbnail?: string
+}
 
-// Componenta AlbumView cu suport pentru video
+type PortfolioItem = {
+  id: string
+  category: string
+  title_en: string
+  title_ro: string
+  title_ru: string
+  description_en: string
+  description_ro: string
+  description_ru: string
+  coverImage: string
+  media: MediaItem[]
+  featured?: boolean
+}
+
+// Componenta AlbumView (copiaz-o aici sau import-o)
 function AlbumView({ 
   isOpen, 
   onClose, 
@@ -36,7 +47,7 @@ function AlbumView({
   currentIndex?: number
 }) {
   const [index, setIndex] = useState(currentIndex)
-  const { t } = useLocale()
+  const { locale } = useLocale()
 
   useEffect(() => {
     if (!isOpen) return
@@ -73,20 +84,18 @@ function AlbumView({
     setIndex((prev) => (prev - 1 + media.length) % media.length)
   }
 
-  // Obținem numele categoriei tradus
   const getCategoryName = (cat: string) => {
     const categoryMap: Record<string, string> = {
-      kitchens: t.portfolio.categories.kitchens,
-      doors: t.portfolio.categories.doors,
-      staircases: t.portfolio.categories.staircases,
-      offices: t.portfolio.categories.offices,
-      retail: t.portfolio.categories.retail,
-      furniture: t.portfolio.categories.furniture,
+      kitchens: "Bucătării",
+      doors: "Uși",
+      staircases: "Scări",
+      offices: "Birouri",
+      retail: "Retail",
+      furniture: "Mobilier",
     }
     return categoryMap[cat] || cat
   }
 
-  // Render based on media type
   const renderMedia = (item: MediaItem) => {
     if (item.type === 'video') {
       return (
@@ -121,7 +130,6 @@ function AlbumView({
       className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
       onClick={onClose}
     >
-      {/* Header */}
       <div 
         className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 md:p-6"
         onClick={(e) => e.stopPropagation()}
@@ -135,19 +143,15 @@ function AlbumView({
         </button>
       </div>
 
-      {/* Conținut principal */}
       <div className="h-full w-full overflow-y-auto pt-16 md:pt-20">
         <div className="container mx-auto px-4 py-8 md:px-8 lg:py-12">
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
             
-            {/* PARTEA STÂNGĂ - Galeria media */}
             <div className="relative space-y-4">
-              {/* Media principală */}
               <div className="relative aspect-[4/3] w-full overflow-hidden border border-border/60 bg-muted/20">
                 {renderMedia(media[index])}
               </div>
 
-              {/* Navigare săgeți */}
               {media.length > 1 && (
                 <>
                   <button
@@ -171,7 +175,6 @@ function AlbumView({
                 </>
               )}
 
-              {/* Thumbnails */}
               {media.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto pb-2">
                   {media.map((item, i) => (
@@ -212,7 +215,6 @@ function AlbumView({
                 </div>
               )}
 
-              {/* Counter și indicator video */}
               <div className="absolute left-4 top-4 flex gap-2">
                 <div className="rounded-full border border-border/60 bg-background/80 px-3 py-1 text-sm text-muted-foreground backdrop-blur-sm">
                   {index + 1} / {media.length}
@@ -225,7 +227,6 @@ function AlbumView({
               </div>
             </div>
 
-            {/* PARTEA DREAPTĂ - Descrierea și detaliile (rămâne la fel) */}
             <div className="flex flex-col space-y-8">
               <div className="space-y-3">
                 <h3 className="font-serif text-3xl font-light tracking-tight text-foreground md:text-4xl">
@@ -312,20 +313,36 @@ function AlbumView({
   )
 }
 
+// SECȚIUNEA PRINCIPALĂ DE PORTOFOLIU
 export function PortfolioSection() {
-  const { t } = useLocale()
-  const [filter, setFilter] = useState<PortfolioCategory | "all">("all")
+  const { locale } = useLocale()
+  const [projects, setProjects] = useState<PortfolioItem[]>([])
+  const [filter, setFilter] = useState<string>("all")
   const [selectedAlbum, setSelectedAlbum] = useState<PortfolioItem | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  // Citim categoria din URL la încărcarea paginii
+  // Citește datele din API
+  useEffect(() => {
+    fetch("/api/public/content?section=portfolio")
+      .then(res => res.json())
+      .then(data => {
+        setProjects(Array.isArray(data) ? data : [])
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error("Error loading portfolio:", err)
+        setLoading(false)
+      })
+  }, [])
+
+  // Citește categoria din URL
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const category = params.get('category')
       
-      if (category && categories.includes(category as PortfolioCategory)) {
-        setFilter(category as PortfolioCategory)
-        
+      if (category) {
+        setFilter(category)
         setTimeout(() => {
           const element = document.getElementById('portfolio')
           if (element) {
@@ -336,57 +353,51 @@ export function PortfolioSection() {
     }
   }, [])
 
-  const filtered =
-    filter === "all"
-      ? portfolioItems
-      : portfolioItems.filter((item) => item.category === filter)
+  const categories = [
+    { id: "all", name: "Toate" },
+    { id: "kitchens", name: "Bucătării" },
+    { id: "doors", name: "Uși" },
+    { id: "staircases", name: "Scări" },
+    { id: "offices", name: "Birouri" },
+    { id: "retail", name: "Retail" },
+    { id: "furniture", name: "Mobilier" }
+  ]
 
-  // Calculăm numărul total de media pentru indicator
-  const getTotalMediaCount = (item: PortfolioItem) => {
-    return item.media.length
-  }
+  const filtered = filter === "all" 
+    ? projects 
+    : projects.filter(p => p.category === filter)
+
+  if (loading) return null
+  if (!projects.length) return null
 
   return (
     <section id="portfolio" className="py-28 lg:py-36">
       <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
         <div className="text-center">
           <p className="mb-4 text-xs uppercase tracking-[0.3em] text-accent">
-            {t.portfolio.label}
+            Portofoliu
           </p>
           <h2 className="font-serif text-3xl font-semibold text-foreground md:text-4xl lg:text-5xl text-balance">
-            {t.portfolio.title}
+            Proiectele noastre
           </h2>
         </div>
 
-        {/* Filtre */}
         <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-          <button
-            onClick={() => setFilter("all")}
-            className={`rounded-none border px-5 py-2 text-xs uppercase tracking-widest transition-colors ${
-              filter === "all"
-                ? "border-accent bg-accent text-accent-foreground"
-                : "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
-            }`}
-          >
-            {t.portfolio.all}
-          </button>
-          {categories.map((cat) => (
+          {categories.map(cat => (
             <button
-              key={cat}
-              onClick={() => setFilter(cat)}
+              key={cat.id}
+              onClick={() => setFilter(cat.id)}
               className={`rounded-none border px-5 py-2 text-xs uppercase tracking-widest transition-colors ${
-                filter === cat
+                filter === cat.id
                   ? "border-accent bg-accent text-accent-foreground"
                   : "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
               }`}
             >
-              {t.portfolio.categories[cat]}
+              {cat.name}
             </button>
           ))}
         </div>
 
-        {/* Gallery Grid */}
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((item) => (
             <div
@@ -396,22 +407,20 @@ export function PortfolioSection() {
             >
               <Image
                 src={item.coverImage}
-                alt={item.title}
+                alt={item[`title_${locale}`] || item.title_ro}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               
-              {/* Multiple media indicator */}
-              {getTotalMediaCount(item) > 1 && (
+              {item.media?.length > 1 && (
                 <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full border border-border/60 bg-background/80 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
                   <Images className="h-3 w-3" />
-                  <span>{getTotalMediaCount(item)}</span>
+                  <span>{item.media.length}</span>
                 </div>
               )}
 
-              {/* Video indicator pe cover */}
-              {item.media.some(m => m.type === 'video') && (
+              {item.media?.some(m => m.type === 'video') && (
                 <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-border/60 bg-accent/80 px-2 py-1 text-xs text-white backdrop-blur-sm">
                   <Play className="h-3 w-3" fill="white" />
                   <span>Video</span>
@@ -423,10 +432,10 @@ export function PortfolioSection() {
                 <div className="flex w-full items-end justify-between">
                   <div>
                     <p className="font-serif text-lg font-medium text-foreground">
-                      {item.title}
+                      {item[`title_${locale}`] || item.title_ro}
                     </p>
                     <p className="text-xs uppercase tracking-widest text-accent">
-                      {t.portfolio.categories[item.category]}
+                      {categories.find(c => c.id === item.category)?.name}
                     </p>
                   </div>
                   <ArrowUpRight className="h-5 w-5 text-primary" />
@@ -436,18 +445,19 @@ export function PortfolioSection() {
           ))}
         </div>
 
-        {/* Album View Modal */}
-        <AlbumView
-          isOpen={selectedAlbum !== null}
-          onClose={() => setSelectedAlbum(null)}
-          title={selectedAlbum?.title || ""}
-          description={selectedAlbum ? (t.portfolio.descriptions as any)[selectedAlbum.id] : ""}
-          media={selectedAlbum?.media || []}
-          category={selectedAlbum?.category || "kitchens"}
-          itemId={selectedAlbum?.id || ""}
-        />
+        {selectedAlbum && (
+          <AlbumView
+            isOpen={true}
+            onClose={() => setSelectedAlbum(null)}
+            title={selectedAlbum[`title_${locale}`] || selectedAlbum.title_ro}
+            description={selectedAlbum[`description_${locale}`] || selectedAlbum.description_ro}
+            media={selectedAlbum.media || []}
+            category={selectedAlbum.category}
+            itemId={selectedAlbum.id}
+          />
+        )}
 
-        {/* Case Study */}
+        {/* Case Study - rămâne la fel */}
         <div className="mt-20 border border-border/60 bg-card p-8 lg:p-12">
           <div className="grid items-center gap-8 lg:grid-cols-2">
             <div className="relative aspect-video overflow-hidden">
@@ -464,10 +474,10 @@ export function PortfolioSection() {
                 Case Study
               </p>
               <h3 className="font-serif text-2xl font-semibold text-foreground md:text-3xl">
-                {t.portfolio.caseStudy.title}
+                Proiect internațional — Franța
               </h3>
               <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                {t.portfolio.caseStudy.description}
+                Interior complet pentru un magazin retail de lux livrat în Franța, demonstrând capacitatea noastră de a executa proiecte la nivel internațional.
               </p>
             </div>
           </div>

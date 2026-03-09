@@ -14,7 +14,9 @@ export function AboutSection() {
     fetch("/api/public/content?section=about")
       .then(res => res.json())
       .then(data => {
-        setContent(data)
+        if (data && Object.keys(data).length > 0) {
+          setContent(data)
+        }
         setLoading(false)
       })
       .catch(err => {
@@ -24,7 +26,6 @@ export function AboutSection() {
   }, [])
 
   if (loading) return null
-  if (!content || Object.keys(content).length === 0) return null
 
   // Features hardcodate (needitabile)
   const features = [
@@ -33,6 +34,14 @@ export function AboutSection() {
     "Atenție la fiecare detaliu",
     "Materiale premium selectate"
   ]
+
+  // Valori din API sau fallback
+  const label = content?.[`label_${locale}`] || "Despre noi"
+  const title = content?.[`title_${locale}`] || "Creăm interioare excepționale din 2004"
+  const description = content?.[`description_${locale}`] || 
+    "Fondată în 2004 în Moldova, Artpin s-a dedicat creării de mobilier personalizat și soluții interioare care îmbină funcționalitatea cu estetica rafinată. Fiecare proiect este unic, conceput special pentru a reflecta personalitatea și nevoile clientului nostru."
+  const cycle = content?.[`cycle_${locale}`] || 
+    "Ciclu complet: consultanță → măsurători → design → producție → instalare"
 
   return (
     <section id="about" className="py-28 lg:py-36">
@@ -51,13 +60,13 @@ export function AboutSection() {
 
           <div>
             <p className="mb-4 text-xs uppercase tracking-[0.3em] text-accent">
-              {content[`label_${locale}`] || content.label_ro}
+              {label}
             </p>
             <h2 className="font-serif text-3xl font-semibold leading-tight text-foreground md:text-4xl lg:text-5xl text-balance">
-              {content[`title_${locale}`] || content.title_ro}
+              {title}
             </h2>
             <p className="mt-6 text-base leading-relaxed text-muted-foreground lg:text-lg">
-              {content[`description_${locale}`] || content.description_ro}
+              {description}
             </p>
 
             <ul className="mt-8 flex flex-col gap-3">
@@ -73,7 +82,7 @@ export function AboutSection() {
 
             <div className="mt-10 border-t border-border pt-6">
               <p className="text-sm tracking-wide text-muted-foreground">
-                {content[`cycle_${locale}`] || content.cycle_ro}
+                {cycle}
               </p>
             </div>
           </div>

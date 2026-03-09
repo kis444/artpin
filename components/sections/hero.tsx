@@ -13,7 +13,9 @@ export function HeroSection() {
     fetch("/api/public/content?section=hero")
       .then(res => res.json())
       .then(data => {
-        setContent(data)
+        if (data && Object.keys(data).length > 0) {
+          setContent(data)
+        }
         setLoading(false)
       })
       .catch(err => {
@@ -22,11 +24,15 @@ export function HeroSection() {
       })
   }, [])
 
-  // Dacă nu avem date încă, arătăm un placeholder sau nimic
   if (loading) return null
-  
-  // Dacă nu există content, nu afișăm secțiunea
-  if (!content || Object.keys(content).length === 0) return null
+
+  // Valori din API sau fallback
+  const headline = content?.[`headline_${locale}`] || 
+    "Mobilier personalizat premium & soluții interioare din 2004"
+  const subheadline = content?.[`subheadline_${locale}`] || 
+    "Design personalizat. Meșteșug excepțional. Interioare atemporale."
+  const cta = content?.[`cta_${locale}`] || 
+    "Solicită consultație gratuită"
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
@@ -47,16 +53,16 @@ export function HeroSection() {
           Est. 2004
         </p>
         <h1 className="font-serif text-4xl font-semibold leading-tight text-foreground md:text-6xl lg:text-7xl text-balance">
-          {content[`headline_${locale}`] || content.headline_ro}
+          {headline}
         </h1>
         <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-          {content[`subheadline_${locale}`] || content.subheadline_ro}
+          {subheadline}
         </p>
         <a
           href="#contact"
           className="mt-10 inline-block rounded-none border border-primary bg-primary px-10 py-4 text-sm font-medium uppercase tracking-widest text-primary-foreground transition-all hover:bg-transparent hover:text-primary"
         >
-          {content[`cta_${locale}`] || content.cta_ro}
+          {cta}
         </a>
       </div>
 

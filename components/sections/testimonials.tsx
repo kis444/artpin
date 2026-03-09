@@ -4,9 +4,18 @@ import { useState, useEffect } from "react"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { Quote } from "lucide-react"
 
+type Testimonial = {
+  id: string
+  name: string
+  role: string
+  text_en: string
+  text_ro: string
+  text_ru: string
+}
+
 export function TestimonialsSection() {
   const { locale } = useLocale()
-  const [testimonials, setTestimonials] = useState<any[]>([])
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -38,9 +47,9 @@ export function TestimonialsSection() {
         </div>
 
         <div className="mt-16 grid gap-8 md:grid-cols-3">
-          {testimonials.map((testimonial, i) => (
+          {testimonials.map((testimonial) => (
             <div
-              key={testimonial.id || i}
+              key={testimonial.id}
               className="flex flex-col border border-border/60 bg-card p-8 lg:p-10"
             >
               <Quote className="mb-6 h-8 w-8 text-accent/40" />
