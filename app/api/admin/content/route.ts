@@ -24,7 +24,6 @@ export async function GET(req: NextRequest) {
     const db = client.db(DB_NAME)
     const collection = db.collection(COLLECTION)
     
-    // Folosim any ca să evităm erorile de tip
     const doc = await collection.findOne({ _id: "main" } as any)
     
     if (!doc) {
@@ -75,6 +74,38 @@ export async function POST(req: NextRequest) {
     
   } catch (error) {
     console.error("MongoDB POST error:", error)
+    return NextResponse.json({ error: "Database error" }, { status: 500 })
+  }
+}
+
+// DELETE /api/admin/content?section=portfolio&id=123
+export async function DELETE(req: NextRequest) {
+  try {
+    const section = req.nextUrl.searchParams.get("section")
+    const id = req.nextUrl.searchParams.get("id")
+
+    if (!section || !id) {
+      return NextResponse.json({ error: "Missing section or id" }, { status: 400 })
+    }
+
+    if (section !== "portfolio") {
+      return NextResponse.json({ error: "Delete only supported for portfolio" }, { status: 400 })
+    }
+
+    const client = await clientPromise
+    const db = client.db(DB_NAME)
+    const collection = db.collection(COLLECTION)
+    
+    // Ștergem proiectul din array-ul portfolio
+    await collection.updateOne(
+      { _id: "main" } as any,
+      { $pull: { "data.portfolio": { id: id } } as any }
+    )
+    
+    return NextResponse.json({ success: true })
+    
+  } catch (error) {
+    console.error("MongoDB DELETE error:", error)
     return NextResponse.json({ error: "Database error" }, { status: 500 })
   }
 }

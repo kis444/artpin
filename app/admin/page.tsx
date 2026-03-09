@@ -510,6 +510,27 @@ function PortfolioTab() {
     }
   }
 
+  // Funcție pentru a șterge un proiect
+const deleteProject = async (projectId: string) => {
+  if (!confirm('Sigur vrei să ștergi acest proiect?')) return
+
+  try {
+    const response = await fetch(`/api/admin/content?section=portfolio&id=${projectId}`, {
+      method: 'DELETE',
+    })
+
+    if (!response.ok) throw new Error('Delete failed')
+
+    // Actualizăm lista de proiecte
+    setProjects(projects.filter(p => p.id !== projectId))
+    setSaved(false)
+    
+  } catch (error) {
+    console.error('Delete error:', error)
+    alert('Eroare la ștergere. Încearcă din nou.')
+  }
+}
+
   // Funcție pentru a seta o imagine ca cover
   const setAsCover = (project: PortfolioProject, mediaSrc: string) => {
     const updatedProject = { ...project, coverImage: mediaSrc }
@@ -590,19 +611,43 @@ function PortfolioTab() {
 
       {/* Lista proiecte */}
       <div className="grid gap-3 mb-6">
-        {filtered.map(project => (
-          <div
-            key={project.id}
-            className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer"
-            onClick={() => setEditingProject(project)}
-          >
-            <div>
-              <p className="font-medium text-slate-800">{project.title_ro}</p>
-              <p className="text-sm text-slate-500">{categoryNames[project.category]}</p>
-            </div>
-            <ChevronRight className="h-5 w-5 text-slate-400" />
-          </div>
-        ))}
+     {filtered.map(project => (
+  <div
+    key={project.id}
+    className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50"
+  >
+    <div 
+      className="flex-1 cursor-pointer"
+      onClick={() => setEditingProject(project)}
+    >
+      <p className="font-medium text-slate-800">{project.title_ro}</p>
+      <p className="text-sm text-slate-500">{categoryNames[project.category]}</p>
+    </div>
+    <div className="flex items-center gap-2">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setEditingProject(project)
+        }}
+        className="p-2 text-slate-400 hover:text-amber-600 transition-colors"
+        title="Editează"
+      >
+        <FileText className="h-4 w-4" />
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          deleteProject(project.id)
+        }}
+        className="p-2 text-slate-400 hover:text-red-600 transition-colors"
+        title="Șterge"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+      <ChevronRight className="h-5 w-5 text-slate-400" />
+    </div>
+  </div>
+))}
       </div>
 
       {/* Editor proiect */}
