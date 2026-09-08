@@ -7,31 +7,31 @@ import Image from "next/image"
 export function HeroSection() {
   const { locale } = useLocale()
   const [content, setContent] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch("/api/public/content?section=hero")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data && Object.keys(data).length > 0) {
           setContent(data)
         }
-        setLoading(false)
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Error loading hero:", err)
-        setLoading(false)
       })
   }, [])
 
-  if (loading) return null
-
   // Valori din API sau fallback
-  const headline = content?.[`headline_${locale}`] || 
+  const headline =
+    content?.[`headline_${locale}`] ||
     "Mobilier personalizat premium & soluții interioare din 2004"
-  const subheadline = content?.[`subheadline_${locale}`] || 
+
+  const subheadline =
+    content?.[`subheadline_${locale}`] ||
     "Design personalizat. Meșteșug excepțional. Interioare atemporale."
-  const cta = content?.[`cta_${locale}`] || 
+
+  const cta =
+    content?.[`cta_${locale}`] ||
     "Solicită consultație gratuită"
 
   return (
@@ -45,6 +45,7 @@ export function HeroSection() {
           priority
           sizes="100vw"
         />
+
         <div className="absolute inset-0 bg-background/70" />
       </div>
 
@@ -52,12 +53,15 @@ export function HeroSection() {
         <p className="mb-6 text-xs uppercase tracking-[0.35em] text-accent">
           Est. 2004
         </p>
+
         <h1 className="font-serif text-4xl font-semibold leading-tight text-foreground md:text-6xl lg:text-7xl text-balance">
           {headline}
         </h1>
+
         <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
           {subheadline}
         </p>
+
         <a
           href="#contact"
           className="mt-10 inline-block rounded-none border border-primary bg-primary px-10 py-4 text-sm font-medium uppercase tracking-widest text-primary-foreground transition-all hover:bg-transparent hover:text-primary"
