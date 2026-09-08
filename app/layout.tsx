@@ -21,8 +21,8 @@ export const metadata: Metadata = {
     "Tailored design, exceptional craftsmanship, and timeless interiors since 2004. Custom kitchens, doors, staircases, and commercial interiors in Moldova.",
   generator: "v0.app",
 icons: {
-  icon: "/logo.brown.png",
-  apple: "/logo.brown.png",
+  icon: "/apple-icon.png",
+  apple: "/apple-icon.png",
 },
 }
 
