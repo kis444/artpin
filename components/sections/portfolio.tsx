@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useLocale } from "@/lib/i18n/locale-context"
 import Image from "next/image"
-import { ArrowUpRight, Images, X, ChevronLeft, ChevronRight, Play } from "lucide-react"
+import { ArrowUpRight, Images, X, ChevronLeft, ChevronRight, Play, Maximize2, Minimize2, ZoomIn } from "lucide-react"
 
 // Tipuri (le poți importa din lib/content-artpin)
 type MediaItem = {
@@ -47,8 +47,17 @@ function AlbumView({
   currentIndex?: number
 }) {
   const [index, setIndex] = useState(currentIndex)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [zoomState, setZoomState] = useState({ scale: 1, x: 0, y: 0, active: false })
+  const fullscreenRef = useRef<HTMLDivElement>(null)
   const { locale } = useLocale()
 
+  // Reset zoom când se schimbă imaginea sau se iese din fullscreen
+  useEffect(() => {
+    setZoomState({ scale: 1, x: 0, y: 0, active: false })
+  }, [index, isFullscreen])
+
+  // Keyboard controls
   useEffect(() => {
     if (!isOpen) return
 
@@ -65,14 +74,75 @@ function AlbumView({
           break
         case 'Escape':
           e.preventDefault()
-          onClose()
+          if (isFullscreen) {
+            setIsFullscreen(false)
+          } else {
+            onClose()
+          }
+          break
+        case 'f':
+        case 'F':
+          e.preventDefault()
+          setIsFullscreen(prev => !prev)
           break
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, media.length, onClose])
+  }, [isOpen, media.length, onClose, isFullscreen])
+
+  // Fullscreen API - sync cu starea internă
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && isFullscreen) {
+        setIsFullscreen(false)
+      }
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [isFullscreen])
+
+  const toggleFullscreen = useCallback(async () => {
+    if (!isFullscreen) {
+      try {
+        if (fullscreenRef.current) {
+          await fullscreenRef.current.requestFullscreen()
+        }
+        setIsFullscreen(true)
+      } catch {
+        // Fallback dacă Fullscreen API nu e disponibil
+        setIsFullscreen(true)
+      }
+    } else {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen()
+        }
+      } catch {
+        // ignore
+      }
+      setIsFullscreen(false)
+    }
+  }, [isFullscreen])
+
+  // Double-click pe imagine → zoom la poziția cursorului
+  const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (media[index]?.type === 'video') return
+    
+    e.stopPropagation()
+    
+    if (zoomState.scale > 1) {
+      // Reset zoom
+      setZoomState({ scale: 1, x: 0, y: 0, active: false })
+    } else {
+      // Zoom la poziția cursorului
+      const rect = e.currentTarget.getBoundingClientRect()
+      const x = ((e.clientX - rect.left) / rect.width) * 100
+      const y = ((e.clientY - rect.top) / rect.height) * 100
+      setZoomState({ scale: 2.5, x, y, active: true })
+    }
+  }, [index, media, zoomState.scale])
 
   if (!isOpen) return null
 
@@ -96,7 +166,7 @@ function AlbumView({
     return categoryMap[cat] || cat
   }
 
-  const renderMedia = (item: MediaItem) => {
+  const renderMedia = (item: MediaItem, inFullscreen = false) => {
     if (item.type === 'video') {
       return (
         <video
@@ -112,19 +182,153 @@ function AlbumView({
         </video>
       )
     } else {
+      const imgStyle = zoomState.active && zoomState.scale > 1 ? {
+        transform: `scale(${zoomState.scale})`,
+        transformOrigin: `${zoomState.x}% ${zoomState.y}%`,
+        transition: 'transform 0.3s ease-out',
+      } : {
+        transform: 'scale(1)',
+        transition: 'transform 0.3s ease-out',
+      }
+
       return (
-        <Image
-          src={item.src}
-          alt={`${title} - view ${index + 1}`}
-          fill
-          className="object-contain"
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          priority
-        />
+        <div 
+          className="relative h-full w-full overflow-hidden"
+          onDoubleClick={inFullscreen ? handleDoubleClick : undefined}
+          style={{ cursor: inFullscreen && media[index]?.type === 'image' ? (zoomState.scale > 1 ? 'zoom-out' : 'zoom-in') : 'default' }}
+        >
+          <Image
+            src={item.src}
+            alt={`${title} - view ${index + 1}`}
+            fill
+            className="object-contain"
+            sizes={inFullscreen ? "100vw" : "(max-width: 1024px) 100vw, 50vw"}
+            priority
+            style={imgStyle}
+          />
+        </div>
       )
     }
   }
 
+  // ====== MOD FULLSCREEN ======
+  if (isFullscreen) {
+    return (
+      <div 
+        ref={fullscreenRef}
+        className="fixed inset-0 z-[60] bg-black"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top bar */}
+        <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between p-4 md:p-6">
+          <h2 className="font-serif text-lg text-white/90 md:text-xl">{title}</h2>
+          <div className="flex items-center gap-2">
+            {media[index]?.type === 'image' && (
+              <div className="hidden items-center gap-1 rounded-full border border-white/20 bg-black/50 px-3 py-1 text-xs text-white/70 backdrop-blur-sm md:flex">
+                <ZoomIn className="h-3 w-3" />
+                <span>Dublu-click pentru zoom</span>
+              </div>
+            )}
+            <button
+              onClick={toggleFullscreen}
+              className="rounded-full border border-white/20 bg-black/50 p-2 text-white/80 transition-colors hover:border-accent hover:text-accent"
+              title="Ieși din fullscreen (Esc)"
+            >
+              <Minimize2 className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => {
+                setIsFullscreen(false)
+                onClose()
+              }}
+              className="rounded-full border border-white/20 bg-black/50 p-2 text-white/80 transition-colors hover:border-accent hover:text-accent"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Main media area */}
+        <div className="relative flex h-full w-full items-center justify-center">
+          <div className="relative h-full w-full max-h-screen max-w-screen">
+            {renderMedia(media[index], true)}
+          </div>
+
+          {/* Navigation arrows */}
+          {media.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  prevMedia()
+                }}
+                className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/50 p-3 text-white/80 transition-colors hover:border-accent hover:text-accent md:left-8 md:p-4"
+              >
+                <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  nextMedia()
+                }}
+                className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/50 p-3 text-white/80 transition-colors hover:border-accent hover:text-accent md:right-8 md:p-4"
+              >
+                <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
+              </button>
+            </>
+          )}
+
+          {/* Counter */}
+          <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 rounded-full border border-white/20 bg-black/50 px-4 py-1.5 text-sm text-white/80 backdrop-blur-sm">
+            {index + 1} / {media.length}
+          </div>
+
+          {/* Thumbnails in fullscreen */}
+          {media.length > 1 && (
+            <div className="absolute bottom-20 left-1/2 z-20 flex max-w-[90vw] -translate-x-1/2 gap-2 overflow-x-auto pb-1">
+              {media.map((item, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setIndex(i)
+                  }}
+                  className={`relative h-12 w-12 flex-shrink-0 overflow-hidden border-2 transition-all md:h-14 md:w-14 ${
+                    i === index
+                      ? "border-accent opacity-100"
+                      : "border-transparent opacity-50 hover:opacity-100"
+                  }`}
+                >
+                  {item.type === 'video' ? (
+                    <>
+                      <Image
+                        src={item.thumbnail || item.src.replace('.mp4', '.jpg')}
+                        alt={`Thumbnail ${i + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                        <Play className="h-4 w-4 text-white" fill="white" />
+                      </div>
+                    </>
+                  ) : (
+                    <Image
+                      src={item.src}
+                      alt={`Thumbnail ${i + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // ====== MOD NORMAL (layout original) ======
   return (
     <div 
       className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
@@ -148,33 +352,60 @@ function AlbumView({
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
             
             <div className="relative space-y-4">
+              {/* Container imagine - aici punem săgețile ca să fie centrate pe imagine */}
               <div className="relative aspect-[4/3] w-full overflow-hidden border border-border/60 bg-muted/20">
                 {renderMedia(media[index])}
+
+                {/* Săgeți stânga/dreapta - centrate pe imagine */}
+                {media.length > 1 && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        prevMedia()
+                      }}
+                      className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full border border-border/60 bg-background/80 p-2 text-muted-foreground backdrop-blur-sm transition-colors hover:border-accent hover:text-accent md:left-4 md:p-3"
+                    >
+                      <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        nextMedia()
+                      }}
+                      className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full border border-border/60 bg-background/80 p-2 text-muted-foreground backdrop-blur-sm transition-colors hover:border-accent hover:text-accent md:right-4 md:p-3"
+                    >
+                      <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
+                    </button>
+                  </>
+                )}
+
+                {/* Buton Fullscreen - colț dreapta jos */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleFullscreen()
+                  }}
+                  className="absolute bottom-3 right-3 z-20 rounded-full border border-border/60 bg-background/80 p-2 text-muted-foreground backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
+                  title="Fullscreen"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                </button>
+
+                {/* Counter + Video badge - colț stânga sus */}
+                <div className="absolute left-3 top-3 z-20 flex gap-2 md:left-4 md:top-4">
+                  <div className="rounded-full border border-border/60 bg-background/80 px-3 py-1 text-sm text-muted-foreground backdrop-blur-sm">
+                    {index + 1} / {media.length}
+                  </div>
+                  {media[index].type === 'video' && (
+                    <div className="rounded-full border border-border/60 bg-accent/80 px-3 py-1 text-sm text-white backdrop-blur-sm">
+                      Video
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {media.length > 1 && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      prevMedia()
-                    }}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-border/60 bg-background/80 p-2 text-muted-foreground transition-colors hover:border-accent hover:text-accent md:left-4 md:p-3"
-                  >
-                    <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      nextMedia()
-                    }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-border/60 bg-background/80 p-2 text-muted-foreground transition-colors hover:border-accent hover:text-accent md:right-4 md:p-3"
-                  >
-                    <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
-                  </button>
-                </>
-              )}
-
+              {/* Thumbnails - sub imagine */}
               {media.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto pb-2">
                   {media.map((item, i) => (
@@ -214,17 +445,6 @@ function AlbumView({
                   ))}
                 </div>
               )}
-
-              <div className="absolute left-4 top-4 flex gap-2">
-                <div className="rounded-full border border-border/60 bg-background/80 px-3 py-1 text-sm text-muted-foreground backdrop-blur-sm">
-                  {index + 1} / {media.length}
-                </div>
-                {media[index].type === 'video' && (
-                  <div className="rounded-full border border-border/60 bg-accent/80 px-3 py-1 text-sm text-white backdrop-blur-sm">
-                    Video
-                  </div>
-                )}
-              </div>
             </div>
 
             <div className="flex flex-col space-y-8">
